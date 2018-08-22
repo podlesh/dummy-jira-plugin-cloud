@@ -7,7 +7,7 @@
 <section id="content" class="ac-content">
     <div class="aui-page-header">
         <div class="aui-page-header-main">
-            <h1>Hello World</h1>
+            <h1>Hello World!!</h1>
         </div>
     </div>
 </section>
@@ -31,7 +31,29 @@
 
         document.getElementsByTagName("head")[0].appendChild(script);
     })();
+
+    function doSomething() {
+        AP.require('request', function(request) {
+            request({
+                url: '/rest/api/latest/project',
+                success: function(response) {
+                    // convert the string response to JSON
+                    response = JSON.parse(response);
+
+                    // dump out the response to the console
+                    console.log(response);
+                },
+                error: function() {
+                    console.log(arguments);
+                }
+            });
+        });
+
+    }
+    
 </script>
+
+<button onclick="doSomething()">Test</button>
 
 </body>
 </html>
