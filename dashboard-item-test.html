@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="//aui-cdn.atlassian.com/aui-adg/5.9.12/css/aui.min.css" media="all">
+    <link rel="stylesheet" href="//aui-cdn.atlassian.com/aui-adg/5.9.12/css/aui.css" media="all">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 </head>
 <body class="aui-page-hybrid">
 
@@ -18,7 +19,14 @@
 </section>
 
 <script id="connect-loader" data-options="sizeToParent:true;">
-    (function() {
+
+    const urlParams = new URLSearchParams(window.location.search);
+
+    ////dashboardItemId=10103&dashboardId=10100&view=default
+    // const dashboardId = urlParams.get("dashboardId");
+    const dashboardItemId = urlParams.get("dashboardItemId");
+
+    (function () {
         var getUrlParam = function (param) {
             var codedParam = (new RegExp(param + '=([^&]*)')).exec(window.location.search)[1];
             return decodeURIComponent(codedParam);
@@ -30,7 +38,7 @@
         var script = document.createElement("script");
         script.src = baseUrl + '/atlassian-connect/all.js';
 
-        if(options) {
+        if (options) {
             script.setAttribute('data-options', options);
         }
 
@@ -38,24 +46,19 @@
     })();
 
     function doSomething() {
-        AP.require('request', function(request) {
-            request({
-                url: '/rest/api/latest/project',
-                success: function(response) {
-                    // convert the string response to JSON
-                    response = JSON.parse(response);
-
-                    // dump out the response to the console
-                    console.log(response);
-                },
-                error: function() {
-                    console.log(arguments);
-                }
-            });
+        AP.jira.setDashboardItemTitle(dashboardItemId + ": " + new Date());
+        AP.request({
+            url: '/rest/api/2/search?jql=' + encodeURIComponent('project = ' + 'POK'),
+            success: function (response) {
+                var issues = JSON.parse(response).issues;
+                console.log(issues);
+            },
+            error: function () {
+                console.log(arguments);
+            }
         });
-
     }
-    
+
 </script>
 
 <button onclick="doSomething()">Test</button>
