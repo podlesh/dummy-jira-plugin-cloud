@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="utf-8">
     <link rel="stylesheet" href="//aui-cdn.atlassian.com/aui-adg/5.9.12/css/aui.css" media="all">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 </head>
 <body class="aui-page-hybrid">
 
@@ -11,20 +13,52 @@
         <div class="aui-page-panel-inner">
             <section class="aui-page-panel-content">
                 <div id="issues-in-project" class="aui-item">
-                    <h1>Dashboard!</h1>
+                    <h1 id="big-title">Dashboard!</h1>
                 </div>
+                <div id="configuration" style="display:block">
+                        <div class='field-group'>
+                            <label for='inputJQL'>JQL:<span class='aui-icon icon-required'>required</span></label>
+                            <input class='text medium-field' type='text' id='inputJQL' value=''/>
+                        </div>
+                        <div class='buttons-container'>
+                            <button type='submit' id='saveConfiguration' class='aui-button'>Set</button>
+                        </div>
+                </div>
+                <!--<button id="hello">Hello AJAX!</button>-->
             </section>
         </div>
     </div>
 </section>
 
-<script id="connect-loader" data-options="sizeToParent:true;">
+<script id="connect-loader" data-options="sizeToParent:false;">
 
     const urlParams = new URLSearchParams(window.location.search);
 
     ////dashboardItemId=10103&dashboardId=10100&view=default
-    // const dashboardId = urlParams.get("dashboardId");
-    const dashboardItemId = urlParams.get("dashboardItemId");
+    const dashboardId = parseInt(urlParams.get("dashboardId"));
+    const dashboardItemId = parseInt(urlParams.get("dashboardItemId"));
+
+    var lastJql = null;
+    function doList(jql) {
+        lastJql = jql;
+        $('#inputJQL').attr('value', jql);
+        if (!jql) {
+            return
+        }
+
+        AP.jira.setDashboardItemTitle(dashboardItemId + ": " + new Date());
+        AP.request({
+            url: '/rest/api/2/search?jql=' + encodeURIComponent(jql),
+            success: function (response) {
+                const issues = JSON.parse(response).issues;
+                console.log("count: " + issues.length);
+                $('#big-title').text("count: " + issues.length);
+            },
+            error: function () {
+                console.log(arguments);
+            }
+        });
+    }
 
     (function () {
         var getUrlParam = function (param) {
@@ -43,25 +77,46 @@
         }
 
         document.getElementsByTagName("head")[0].appendChild(script);
+
+
+        $(window).load(function () {
+            console.log("load() called");
+
+            AP.request({
+                url: `/rest/api/2/dashboard/${dashboardId}/items/${dashboardItemId}/properties/itemkey`,
+                type: 'GET',
+                success: function (response) {
+                    const respJson = JSON.parse(response);
+                    if (respJson['value']) {
+                        const configuration = respJson.value;
+                        doList(configuration.jql);
+                    }
+                },
+                error: function (xhr, statusText, errorThrown) {
+                    console.log(arguments);
+                }
+            });
+
+
+            $("#saveConfiguration").click(function () {
+                const newJQL = $('#inputJQL').val();
+                const configuration = {
+                    jql: newJQL
+                };
+                AP.request({
+                    url: `/rest/api/2/dashboard/${dashboardId}/items/${dashboardItemId}/properties/itemkey`,
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify(configuration),
+                    success: function () {
+                        doList(configuration.jql);
+                    }
+                });
+            });
+        });
     })();
 
-    function doSomething() {
-        AP.jira.setDashboardItemTitle(dashboardItemId + ": " + new Date());
-        AP.request({
-            url: '/rest/api/2/search?jql=' + encodeURIComponent('project = ' + 'POK'),
-            success: function (response) {
-                var issues = JSON.parse(response).issues;
-                console.log(issues);
-            },
-            error: function () {
-                console.log(arguments);
-            }
-        });
-    }
-
 </script>
-
-<button onclick="doSomething()">Test</button>
 
 </body>
 </html>
