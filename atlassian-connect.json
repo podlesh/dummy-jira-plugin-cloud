@@ -12,6 +12,20 @@
   },
   "apiVersion": 1,
   "modules": {
+    "jiraDashboardItems": [
+      {
+        "description": {
+          "value": "Dashboard item description"
+        },
+        "url": "/dashboard-item-test.html?dashboardItemId={dashboardItem.id}&dashboardId={dashboard.id}&view={dashboardItem.viewType}",
+        "configurable": false,
+        "thumbnailUrl": "thumbnail.png",
+        "name": {
+          "value": "Dashboard item title"
+        },
+        "key": "dashboard-item-key"
+      }
+    ],
     "generalPages": [
       {
         "url": "/helloworld.html",
