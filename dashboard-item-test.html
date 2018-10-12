@@ -78,6 +78,21 @@
 
         document.getElementsByTagName("head")[0].appendChild(script);
 
+        function doRequest(url) {
+            return new Promise((resolve, reject) => {
+                AP.request({
+                    url: `/rest/api/3/filter`,
+                    type: 'GET',
+                    success: resolve,
+                    error: function (xhr, statusText, errorThrown) {
+                        console.log(arguments);
+                        reject(errorThrown);
+                    }
+                }).then((response) => {
+                    return JSON.parse(response);
+                });
+            });
+        }
 
         $(window).load(function () {
             console.log("load() called");
@@ -94,6 +109,13 @@
                 },
                 error: function (xhr, statusText, errorThrown) {
                     console.log(arguments);
+                }
+            });
+
+            doRequest('/rest/api/3/filter').then(list => {
+                //console.log(list);
+                for (const filter of list) {
+                    console.log(`filter: ${filter.id} = ${filter.name}: ${filter.jql}`);
                 }
             });
 
