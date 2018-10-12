@@ -112,13 +112,6 @@
                 }
             });
 
-            doRequest('/rest/api/3/filter').then(list => {
-                //console.log(list);
-                for (const filter of list) {
-                    console.log(`filter: ${filter.id} = ${filter.name}: ${filter.jql}`);
-                }
-            });
-
 
             $("#saveConfiguration").click(function () {
                 const newJQL = $('#inputJQL').val();
@@ -134,6 +127,16 @@
                         doList(configuration.jql);
                     }
                 });
+
+                doRequest('/rest/api/3/filter').then(list => {
+                    console.log(JSON.stringify(list));
+                    for (const filter of list) {
+                        console.log(JSON.stringify(filter));
+                        console.log(`filter: ${filter.id} = ${filter.name}: ${filter.jql}`);
+                    }
+                });
+
+
             });
         });
     })();
