@@ -2,7 +2,7 @@
   "name": "Hello World",
   "description": "Tutorial application",
   "key": "cz.podlesh.atlassian.tutorial1",
-  "baseUrl": "https://vps2.podlesh.cz/tunnel8000",
+  "baseUrl": "https://vps2.podlesh.cz/podlesh/dummy-jira-plugin-cloud",
   "vendor": {
     "name": "Kamil Podlesak",
     "url": "http://podlesh.cz"
